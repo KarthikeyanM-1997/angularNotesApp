@@ -1,15 +1,11 @@
-<div class='container'>
-  <div class='row'>
-    <div class='col-lg-2 text-center'></div>
-    <div class='col-lg-4 text-center'>Subject</div>
-    <div class='col-lg-6 text-center'>Syllabus</div>
-  </div>
-  <div class='row m-2'>
+<div class='container' style="background-color:#fafafa;">
+
+  <div class='row p-3'>
     <div class='col-lg-2 text-center'><button class='btn btn-outline-primary' (click)="addDay()">Add Day</button>
       <br>
       <hr>
       <span *ngFor="let item of allDays" (click)="showDay(item.index)">
-        <div class='dayDiv'>{{item.index}}</div>
+        <div class='dayDiv'>Day {{item.index}}</div>
         <hr>
       </span>
     </div>
@@ -17,52 +13,54 @@
         Topic</button>
       <br>
       <hr>
-      <div *ngIf="allDays[currentDay - 1].listOfTopics.length > 0">
+      <div *ngIf="allDays[currentDay - 1].availableTopics > 0">
         <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let item of allDays[currentDay - 1].listOfTopics" cdkDrag
-            (click)="setSelectedTopic(item.index)">
-            {{item.title}}
-            <span style='margin-left: auto; padding-right:10px;'>{{item.type}}</span>
-            <button class="btn btn-outline-primary" (click)="open(moveTopicModal)">Move</button>&nbsp;
-            <button (click)="deleteTopic(item.index)" class="btn btn-danger"><b>x</b></button>
+          <div *ngFor="let item of allDays[currentDay - 1].listOfTopics">
+            <div class="example-box" cdkDrag *ngIf="item.deleted === false" (click)="setSelectedTopic(item.index)">
+              {{item.title}}
+              <span style='margin-left: auto; padding-right:10px;'>{{item.type}}</span>
+              <button class="btn btn-outline-primary" (click)="open(moveTopicModal)">Move</button>&nbsp;
+              <button (click)="deleteTopic(item.index)" class="btn btn-danger"><b>x</b></button>
+            </div>
           </div>
         </div>
       </div>
 
 
     </div>
-    <div class='col-lg-6'>
+    <div class='col-lg-6'  style='background-color: white; padding: 10px;'>
       <div id='notesContent'>
         <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
           <li [ngbNavItem]="1">
             <a ngbNavLink>Notes</a>
             <ng-template ngbNavContent>
               <hr>
-              <angular-editor [(ngModel)]="topicNotesHtml" id='notesEditor' [placeholder]="'Enter Notes here'"
-                [config]="config"></angular-editor>
-              {{topicNotesHtml}}
+              <angular-editor [(ngModel)]="topicNotesHtml" id='notesEditor' [config]="config"></angular-editor>
             </ng-template>
           </li>
           <li [ngbNavItem]="2">
-            <a ngbNavLink>Mentor Notes</a>
+            <a ngbNavLink>Instructions</a>
             <ng-template ngbNavContent>
               <hr>
-              <angular-editor [(ngModel)]="mentorNotesHtml" id='mentorNotesEditor' [placeholder]="'Enter Notes here'"
-                [config]="config"></angular-editor>
-              {{mentorNotesHtml}}
+              <angular-editor [(ngModel)]="mentorNotesHtml" id='mentorNotesEditor' [config]="config"></angular-editor>
             </ng-template>
           </li>
         </ul>
 
         <div [ngbNavOutlet]="nav" class="mt-2"></div>
-        <button class='btn btn-primary' (click)="saveNotes();">Save Notes</button>
+        <br>
+        <button class='btn btn-primary' style='float:right' (click)="saveNotes();">Save Notes</button>
+        <br>
       </div>
-      <div id='noContent'>
-        No Topic Selected
+      <div id='noContent' style='display:none;padding:5px' class='text-center' >
+        <h2>No Topic Selected</h2>
+        <hr>
       </div>
     </div>
   </div>
+  <hr>
 </div>
+
 
 <ng-template #addTopicModal let-modal>
   <div class="modal-header">
@@ -75,11 +73,11 @@
     <div class="form-group">
       <label for="topicTitle">Topic Title</label>
       <br>
-      <input type="text" [(ngModel)]="newTopicTitle" />
+      <input type="text" [(ngModel)]="newTopicTitle" class="form-control" />
       <br>
       <label for="topicType">Topic Type</label>
       <br>
-      <select name="topicSelect" [(ngModel)]="newTopicType">
+      <select name="topicSelect" [(ngModel)]="newTopicType" class="form-control">
         <option *ngFor="let item of topicTypes" [value]="item">{{item}}</option>
       </select>
     </div>
@@ -98,14 +96,13 @@
   </div>
   <div class="modal-body">
     <div class="form-group">
-      <label for="topicTitle">Move To</label>
-      <br>
-      <select [(ngModel)]="moveDay" name="daySelect">
+      <label for="topicTitle">Move To Day : </label>
+      <select [(ngModel)]="moveDay" name="daySelect" class="form-control">
         <option *ngFor="let item of allDays" [value]="item.index">{{item.index}}</option>
       </select>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Add click');moveTopic();">Add</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Add click');moveTopic();">Move</button>
   </div>
 </ng-template>

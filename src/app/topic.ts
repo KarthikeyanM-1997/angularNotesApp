@@ -7,13 +7,15 @@ export class Topic {
 
     index : number;
 
+    deleted : boolean = false;
+
     constructor(index: number, type, title : string){
         this.index = index;
         this.type = type;
         this.title = title;
 
-        this.topicNotes = index + "topic Notes";
-        this.mentorNotes = index + "mentor Notes";
+        this.topicNotes = "Notes";
+        this.mentorNotes = "Instructions";
     }
 
     topicNotes : string = "";

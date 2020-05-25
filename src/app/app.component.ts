@@ -39,9 +39,9 @@ export class AppComponent {
   config: AngularEditorConfig = {
     editable: true,
     spellcheck: true,
-    height: '15rem',
+    height: '20rem',
     minHeight: '5rem',
-    placeholder: 'Enter text here...',
+    placeholder: '',
     translate: 'no',
     defaultParagraphSeparator: 'p',
     defaultFontName: 'Arial',
@@ -53,6 +53,9 @@ export class AppComponent {
   };
 
   drop(event: CdkDragDrop<string[]>) {
+    //let tempIndex = event.previousIndex;
+    this.allDays[this.currentDay - 1].listOfTopics[event.previousIndex].index = event.currentIndex;
+    this.allDays[this.currentDay - 1].listOfTopics[event.currentIndex].index = event.previousIndex;
     moveItemInArray(this.allDays[this.currentDay - 1].listOfTopics, event.previousIndex, event.currentIndex);
   }
 
@@ -64,21 +67,30 @@ export class AppComponent {
 
   showDay(index) {
     this.currentDay = index;
-    if (this.allDays[this.currentDay - 1].listOfTopics.length > 0) {
-      this.showContent();
-      this.setSelectedTopic(0);
+    let flag = false;
+    for(let i = 0; i < this.allDays[this.currentDay - 1].listOfTopics.length; i++){
+      if(this.allDays[this.currentDay - 1].listOfTopics[i].deleted === false){
+        this.showContent();
+        this.setSelectedTopic(i);
+        flag = true;
+        break;
+      }
     }
-    else {
+
+    if(!flag){
       this.hideContent();
     }
+    
   }
 
   showContent() {
     (<HTMLDivElement>document.getElementById("notesContent")).style.display = "block";
+    (<HTMLDivElement>document.getElementById("noContent")).style.display = "none";
   }
 
   hideContent() {
     (<HTMLDivElement>document.getElementById("notesContent")).style.display = "none";
+    (<HTMLDivElement>document.getElementById("noContent")).style.display = "block";
   }
 
   constructor(private modalService: NgbModal) {
@@ -111,11 +123,10 @@ export class AppComponent {
     if (this.newTopicTitle === "" || this.newTopicType === "") {
       return;
     }
-    console.log("Title : " + this.newTopicTitle);
-    console.log("Type : " + this.newTopicTitle);
     this.allDays[this.currentDay - 1].addTopic(this.newTopicType, this.newTopicTitle);
     this.newTopicTitle = "";
     this.newTopicType = "Task";
+    this.setSelectedTopic(this.allDays[this.currentDay - 1].listOfTopics.length - 1);
     this.showContent();
   }
 
@@ -128,8 +139,16 @@ export class AppComponent {
 
   deleteTopic(ind) {
     this.allDays[this.currentDay - 1].removeTopic(this.allDays[this.currentDay - 1].listOfTopics[ind]);
-    if(this.allDays[this.currentDay - 1].listOfTopics.length === 0){
+    if(this.allDays[this.currentDay - 1].availableTopics === 0){
       this.hideContent();
+    }
+    else{
+      for(let i = 0; i < this.allDays[this.currentDay - 1].listOfTopics.length; i++){
+        if(this.allDays[this.currentDay - 1].listOfTopics[i].deleted === false){
+          this.setSelectedTopic(i);
+          break;
+        }
+      }
     }
   }
 
@@ -141,7 +160,7 @@ export class AppComponent {
   moveTopic() {
     this.allDays[this.moveDay - 1].moveTopic(this.allDays[this.currentDay - 1].listOfTopics[this.selectedTopicIndex]);
     this.deleteTopic(this.selectedTopicIndex);
-    if(this.allDays[this.currentDay - 1].listOfTopics.length === 0){
+    if(this.allDays[this.currentDay - 1].availableTopics === 0){
       this.hideContent();
     }
   }
